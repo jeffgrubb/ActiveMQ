@@ -4,28 +4,21 @@
 
 package org.jeffgrubb.myApp;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
-import javax.jms.Connection;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-public class FooProducer implements Runnable
+public class FooProducer extends MQBase
 {
     @Override
     public void run()
     {
         try {
-            //ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://activemq.jeffgrubb.org");
+            super.run();
 
-            ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://activemq.jeffgrubb.org:61616?trace=false&soTimeout=60000");
-
-            Connection connection = connectionFactory.createConnection();
-            connection.start();
-
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Session session = _connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
             Destination destination = session.createQueue("TEST.FOO");
 
@@ -39,10 +32,8 @@ public class FooProducer implements Runnable
             producer.send(message);
 
             session.close();
-            connection.close();
-        }
-        catch(Exception ex)
-        {
+            _connection.close();
+        } catch(Exception ex) {
             System.out.println("Caught exception: " + ex);
             ex.printStackTrace();
         }
